@@ -5,6 +5,8 @@ import java.util.Arrays;
 
 public class InputHandler implements KeyListener, MouseListener, FocusListener, MouseMotionListener {
     public boolean[] key = new boolean[68836];
+    public static int mouseX;
+    public static int mouseY;
     @Override
     public void focusGained(FocusEvent e) {
 
@@ -68,6 +70,7 @@ public class InputHandler implements KeyListener, MouseListener, FocusListener, 
 
     @Override
     public void mouseMoved(MouseEvent e) {
-
+        mouseX = e.getX();
+        mouseY = e.getY();
     }
 }

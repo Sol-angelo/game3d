@@ -2,6 +2,7 @@ package com.solace.game3d;
 
 import com.solace.game3d.graphics.Render;
 import com.solace.game3d.graphics.Screen;
+import com.solace.game3d.input.Controller;
 import com.solace.game3d.input.InputHandler;
 
 import javax.swing.*;
@@ -17,15 +18,18 @@ public class Display extends Canvas implements Runnable {
     public static final int width = 800;
     public static final int height = 600;
     public static final String title = "3D Game";
-
     private Screen screen;
     private BufferedImage img;
     private Thread thread;
-    private Render render;
     private Game game;
     private InputHandler input;
+    private int newX;
+    private int newY;
+    private int oldX;
+    private int oldY;
     private int[] pixels;
     private boolean running = false;
+    private String fps;
 
     public Display() {
         Dimension size = new Dimension(width, height);
@@ -81,7 +85,8 @@ public class Display extends Canvas implements Runnable {
                 ticked = true;
                 tickCount++;
                 if (tickCount % 60 == 0) {
-                    System.out.println(frames + " fps");
+                    //System.out.println(frames + " fps");
+                    fps = String.valueOf(frames);
                     previousTime += 1000;
                     frames = 0;
                 }
@@ -93,6 +98,23 @@ public class Display extends Canvas implements Runnable {
             }
             render();
             frames++;
+
+            newX = InputHandler.mouseX;
+
+            if (newX > oldX) {
+                Controller.turnRight = true;
+                Controller.turnLeft = false;
+            }
+            if (newX < oldX) {
+                Controller.turnRight = false;
+                Controller.turnLeft = true;
+            }
+            if (newX == oldX) {
+                Controller.turnRight = false;
+                Controller.turnLeft = false;
+            }
+
+            oldX = newX;
         }
     }
 
@@ -115,14 +137,20 @@ public class Display extends Canvas implements Runnable {
 
         Graphics g = bs.getDrawGraphics();
         g.drawImage(img, 0, 0, width, height, null);
+        g.setColor(Color.white);
+        g.setFont(new Font("Verdana", 0, 20));
+        if (Controller.f3Enabled) g.drawString("FPS: "+fps, 10, 25);
         g.dispose();
         bs.show();
     }
 
     public static void main(String[] args) {
+        BufferedImage cursor = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+        Cursor blank = Toolkit.getDefaultToolkit().createCustomCursor(cursor, new Point(0, 0), "blank");
         Display game = new Display();
         JFrame frame = new JFrame();
         frame.add(game);
+        frame.getContentPane().setCursor(blank);
         frame.setTitle(title);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(width, height);
